@@ -16,6 +16,7 @@ var width = 0;
 var height = 0;
 // The image data
 var ppm_img_data;
+var angle = 0;
 
 //Function to process upload
 var upload = function () {
@@ -39,37 +40,74 @@ var upload = function () {
 	    
             // *** The code below is for the template to show you how to use matrices and update pixels on the canvas.
             // *** Modify/remove the following code and implement animation
-
-	    // Create a new image data object to hold the new image
-            var newImageData = ctx.createImageData(width, height);
-	    var transMatrix = GetTranslationMatrix(0, height);// Translate image
-	    var scaleMatrix = GetScalingMatrix(1, -1);// Flip image y axis
-	    var matrix = MultiplyMatrixMatrix(transMatrix, scaleMatrix);// Mix the translation and scale matrices
             
-            // Loop through all the pixels in the image and set its color
-            for (var i = 0; i < ppm_img_data.data.length; i += 4) {
+	        // // Create a new image data object to hold the new image
+            // var newImageData = ctx.createImageData(width, height);
+            // var transMatrix = GetTranslationMatrix(0, height);// Translate image
+            // var scaleMatrix = GetScalingMatrix(1, -1);// Flip image y axis
+            // var matrix = MultiplyMatrixMatrix(transMatrix, scaleMatrix);// Mix the translation and scale matrices
+            
+            // // Loop through all the pixels in the image and set its color
+            // for (var i = 0; i < ppm_img_data.data.length; i += 4) {
 
-                // Get the pixel location in x and y with (0,0) being the top left of the image
-                var pixel = [Math.floor(i / 4) % width, 
-                             Math.floor(i / 4) / width, 1];
+            //     // Get the pixel location in x and y with (0,0) being the top left of the image
+            //     var pixel = [Math.floor(i / 4) % width, 
+            //                  Math.floor(i / 4) / width, 1];
         
-                // Get the location of the sample pixel
-                var samplePixel = MultiplyMatrixVector(matrix, pixel);
+            //     // Get the location of the sample pixel
+            //     var samplePixel = MultiplyMatrixVector(matrix, pixel);
 
-                // Floor pixel to integer
-                samplePixel[0] = Math.floor(samplePixel[0]);
-                samplePixel[1] = Math.floor(samplePixel[1]);
+            //     // Floor pixel to integer
+            //     samplePixel[0] = Math.floor(samplePixel[0]);
+            //     samplePixel[1] = Math.floor(samplePixel[1]);
 
-                setPixelColor(newImageData, samplePixel, i);
-            }
+            //     setPixelColor(newImageData, samplePixel, i);
+            // }
 
-            // Draw the new image
-            ctx.putImageData(newImageData, canvas.width/2 - width/2, canvas.height/2 - height/2);
+            // // Draw the new image
+            // ctx.putImageData(newImageData, canvas.width/2 - width/2, canvas.height/2 - height/2);
 	    
-	    // Show matrix
-            showMatrix(matrix);
+	        // // Show matrix
+            // showMatrix(matrix);
+
+            rotateAndAnimate();
         }
     }
+}
+
+function rotateAndAnimate() {
+    // Create a new image data object to hold the new image
+    var newImageData = ctx.createImageData(width, height);
+    var transMatrix = GetTranslationMatrix(-width/2, -height/2);
+    var rotMatrix = GetRotationMatrix(angle);
+    var returnTransMatrix = GetTranslationMatrix(width/2, height/2);// Translate image
+    var matrix = MultiplyMatrixMatrix(rotMatrix, transMatrix);// Mix the translation and scale matrices
+    matrix = MultiplyMatrixMatrix(returnTransMatrix, matrix);
+    
+    // Loop through all the pixels in the image and set its color
+    for (var i = 0; i < ppm_img_data.data.length; i += 4) {
+
+        // Get the pixel location in x and y with (0,0) being the top left of the image
+        var pixel = [Math.floor(i / 4) % width, 
+                    Math.floor(i / 4) / width, 1];
+
+        // Get the location of the sample pixel
+        var samplePixel = MultiplyMatrixVector(matrix, pixel);
+
+        // Floor pixel to integer
+        samplePixel[0] = Math.floor(samplePixel[0]);
+        samplePixel[1] = Math.floor(samplePixel[1]);
+
+        setPixelColor(newImageData, samplePixel, i);
+    }
+
+    // Draw the new image
+    ctx.putImageData(newImageData, canvas.width/2 - width/2, canvas.height/2 - height/2);
+    angle = angle + 1;
+
+    // Show matrix
+    showMatrix(matrix);
+    requestAnimationFrame(rotateAndAnimate);
 }
 
 // Show transformation matrix on HTML
