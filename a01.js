@@ -38,51 +38,31 @@ var upload = function () {
             * Hint: Write a rotation method, and call WebGL APIs to reuse the method for animation
             */
 	    
-            // *** The code below is for the template to show you how to use matrices and update pixels on the canvas.
-            // *** Modify/remove the following code and implement animation
-            
-	        // // Create a new image data object to hold the new image
-            // var newImageData = ctx.createImageData(width, height);
-            // var transMatrix = GetTranslationMatrix(0, height);// Translate image
-            // var scaleMatrix = GetScalingMatrix(1, -1);// Flip image y axis
-            // var matrix = MultiplyMatrixMatrix(transMatrix, scaleMatrix);// Mix the translation and scale matrices
-            
-            // // Loop through all the pixels in the image and set its color
-            // for (var i = 0; i < ppm_img_data.data.length; i += 4) {
-
-            //     // Get the pixel location in x and y with (0,0) being the top left of the image
-            //     var pixel = [Math.floor(i / 4) % width, 
-            //                  Math.floor(i / 4) / width, 1];
-        
-            //     // Get the location of the sample pixel
-            //     var samplePixel = MultiplyMatrixVector(matrix, pixel);
-
-            //     // Floor pixel to integer
-            //     samplePixel[0] = Math.floor(samplePixel[0]);
-            //     samplePixel[1] = Math.floor(samplePixel[1]);
-
-            //     setPixelColor(newImageData, samplePixel, i);
-            // }
-
-            // // Draw the new image
-            // ctx.putImageData(newImageData, canvas.width/2 - width/2, canvas.height/2 - height/2);
-	    
-	        // // Show matrix
-            // showMatrix(matrix);
-
             rotateAndAnimate();
         }
     }
 }
 
 function rotateAndAnimate() {
-    // Create a new image data object to hold the new image
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, width, height);
+
+    // Determine the scale factor based on the current rotation angle
+    var radians = angle*Math.PI/180;
+    var scaleFactor = (Math.max(width,height)/Math.min(width, height))*(Math.abs(Math.cos(radians)) + Math.abs(Math.sin(radians)));
+
+    // Create a new image data object to hold the new image and matrices
     var newImageData = ctx.createImageData(width, height);
     var transMatrix = GetTranslationMatrix(-width/2, -height/2);
     var rotMatrix = GetRotationMatrix(angle);
     var returnTransMatrix = GetTranslationMatrix(width/2, height/2);// Translate image
-    var matrix = MultiplyMatrixMatrix(rotMatrix, transMatrix);// Mix the translation and scale matrices
-    matrix = MultiplyMatrixMatrix(returnTransMatrix, matrix);
+    var scaleMatrix = GetScalingMatrix(scaleFactor, scaleFactor);
+
+    var matrix = MultiplyMatrixMatrix(scaleMatrix, transMatrix); // Mix the scale and initial translation matrices
+    matrix = MultiplyMatrixMatrix(rotMatrix, matrix); // Mix the current matrix and rotation matrices
+    matrix = MultiplyMatrixMatrix(returnTransMatrix, matrix); // Mix the current matrix and return translation matrices
     
     // Loop through all the pixels in the image and set its color
     for (var i = 0; i < ppm_img_data.data.length; i += 4) {
@@ -98,12 +78,27 @@ function rotateAndAnimate() {
         samplePixel[0] = Math.floor(samplePixel[0]);
         samplePixel[1] = Math.floor(samplePixel[1]);
 
-        setPixelColor(newImageData, samplePixel, i);
+        if (
+            samplePixel[0] >= 0 && samplePixel[0] < width &&
+            samplePixel[1] >= 0 && samplePixel[1] < height
+          ) {
+            setPixelColor(newImageData, samplePixel, i);
+          } else {
+            // Keep the pixel white for out-of-bounds areas
+            newImageData.data[i] = 255;
+            newImageData.data[i + 1] = 255;
+            newImageData.data[i + 2] = 255;
+            newImageData.data[i + 3] = 255;
+          }
     }
 
     // Draw the new image
     ctx.putImageData(newImageData, canvas.width/2 - width/2, canvas.height/2 - height/2);
     angle = angle + 1;
+
+    if (angle >= 360) {
+        angle = 0;
+    }
 
     // Show matrix
     showMatrix(matrix);
