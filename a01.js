@@ -37,21 +37,20 @@ var upload = function () {
             * Modify any code if needed
             * Hint: Write a rotation method, and call WebGL APIs to reuse the method for animation
             */
-	    
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, width, height);
+
             rotateAndAnimate();
         }
     }
 }
 
 function rotateAndAnimate() {
-
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, width, height);
-
     // Determine the scale factor based on the current rotation angle
     var radians = angle*Math.PI/180;
-    var scaleFactor = (Math.max(width,height)/Math.min(width, height))*(Math.abs(Math.cos(radians)) + Math.abs(Math.sin(radians)));
+    var scaleFactor = (Math.max(width,height)/Math.min(width,height))*(Math.abs(Math.cos(radians)) + Math.abs(Math.sin(radians)));
 
     // Create a new image data object to hold the new image and matrices
     var newImageData = ctx.createImageData(width, height);
@@ -78,18 +77,10 @@ function rotateAndAnimate() {
         samplePixel[0] = Math.floor(samplePixel[0]);
         samplePixel[1] = Math.floor(samplePixel[1]);
 
-        if (
-            samplePixel[0] >= 0 && samplePixel[0] < width &&
-            samplePixel[1] >= 0 && samplePixel[1] < height
-          ) {
+        // Keep the pixel white for out-of-bounds areas
+        if (samplePixel[0] >= 0 && samplePixel[0] < width && samplePixel[1] >= 0 && samplePixel[1] < height) {
             setPixelColor(newImageData, samplePixel, i);
-          } else {
-            // Keep the pixel white for out-of-bounds areas
-            newImageData.data[i] = 255;
-            newImageData.data[i + 1] = 255;
-            newImageData.data[i + 2] = 255;
-            newImageData.data[i + 3] = 255;
-          }
+        }
     }
 
     // Draw the new image

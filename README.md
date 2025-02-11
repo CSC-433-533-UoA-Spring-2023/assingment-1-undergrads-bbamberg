@@ -14,7 +14,7 @@ image and final transformation matrix will automatically appear on the screen an
 Description:
 This program processes a ppm image file and rotates it counter-clockwise using translation, scaling, and
 rotation matrices. As the image rotates, it will also scale to ensure that clipping at the edges of the
-image don't occur, which was done for bonus credit on top of the undergraduate requirements.
+image doesn't occur, which was done for bonus credit on top of the undergraduate requirements.
 
 There are no known errors in this program.
 
@@ -29,3 +29,4 @@ Included files (**PLEASE ADD/UPDATE THIS LIST**):
 **PLEASE PROVIDE ANY ATTRIBUTION HERE**
 * Images obtained from the following sources:
   * bunny: http://graphics.stanford.edu/data/3Dscanrep/  
+  * pic1: https://www.pinterest.com/pin/jiji-kikis-cat-kikis-delivery-service-in-2024--20829217020438325/
